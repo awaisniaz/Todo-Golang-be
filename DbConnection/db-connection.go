@@ -28,6 +28,8 @@ func Close(client *mongo.Client, ctx context.Context,
 	}()
 }
 
+var connection *mongo.Client
+
 func Connect(uri string) (*mongo.Client, context.Context,
 	context.CancelFunc, error) {
 
@@ -38,6 +40,7 @@ func Connect(uri string) (*mongo.Client, context.Context,
 
 	// mongo.Connect return mongo.Client method
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	connection = client
 	return client, ctx, cancel, err
 }
 
@@ -52,4 +55,8 @@ func Ping(client *mongo.Client, ctx context.Context) error {
 	}
 	fmt.Println("connected successfully")
 	return nil
+}
+
+func Connection() *mongo.Client {
+	return connection
 }

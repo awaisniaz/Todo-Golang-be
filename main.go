@@ -3,13 +3,16 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	controller "github.com/awaisniaz/todo/Controller"
 	dbconnection "github.com/awaisniaz/todo/DbConnection"
-	routes "github.com/awaisniaz/todo/Routes"
+
 	"github.com/gorilla/mux"
 )
 
 func main() {
+	os.Setenv("DB_NAME", "todo-golang")
 	client, ctx, cancel, err := dbconnection.Connect("mongodb://localhost:27017/todo-golang")
 	if err != nil {
 		panic(err)
@@ -21,11 +24,11 @@ func main() {
 	// Ping mongoDB with Ping method
 	dbconnection.Ping(client, ctx)
 	r := mux.NewRouter()
-	r.HandleFunc("/login", routes.Login).Methods("POST")
-	r.HandleFunc("/signup", routes.Register).Methods("POST")
-	r.HandleFunc("/addTodo", routes.AddTodo)
-	r.HandleFunc("/getTodos", routes.GetTodo)
-	r.HandleFunc("/updateTodo", routes.UpdateTodo)
-	r.HandleFunc("deleteTodo", routes.DeleteTodo)
+	r.HandleFunc("/login", controller.Login).Methods("POST")
+	r.HandleFunc("/signup", controller.Register).Methods("POST")
+	r.HandleFunc("/addTodo", controller.AddTodo)
+	r.HandleFunc("/getTodos", controller.GetTodo)
+	r.HandleFunc("/updateTodo", controller.UpdateTodo)
+	r.HandleFunc("deleteTodo", controller.DeleteTodo)
 	log.Fatal(http.ListenAndServe(":10000", r))
 }
