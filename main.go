@@ -26,6 +26,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/login", controller.Login).Methods("POST")
 	r.HandleFunc("/signup", controller.Register).Methods("POST")
+	r.HandleFunc("/updateProfile", controller.UpdateProfile).Methods("PATCH")
 	r.HandleFunc("/addTodo", controller.AddTodo)
 	r.HandleFunc("/getTodos", controller.GetTodo)
 	r.HandleFunc("/updateTodo", controller.UpdateTodo)
