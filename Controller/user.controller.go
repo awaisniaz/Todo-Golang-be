@@ -11,12 +11,15 @@ import (
 
 	dbconnection "github.com/awaisniaz/todo/DbConnection"
 	"github.com/awaisniaz/todo/utils"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
 	Name     string `json: "name"`
 	Email    string `json: "email"`
 	Password string `json:"password"`
+	Profile  string `json:"profile"`
+	Token    string `json:"token"`
 }
 
 type Response1 struct {
@@ -27,9 +30,54 @@ type Response struct {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	var LoginData = []User{
-		{Name: "Almod Milk", Email: "awaisniaz1995@gmail.comss"},
+	db := dbconnection.Connection()
+	if db == nil {
+		log.Fatal("Some thing is going Wrong")
+		return
 	}
+
+	// body, err := ioutil.ReadAll(r.Body)
+	var user User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+
+	// Unmarshal the JSON data into the User struct
+	// err = json.Unmarshal(body, &user)
+	// if err != nil {
+	// 	http.Error(w, "Failed to unmarshal JSON", http.StatusInternalServerError)
+	// 	return
+	// }
+	fmt.Println(user.Email)
+
+	dbName := os.Getenv("DB_NAME")
+	fmt.Println(dbName)
+	// filter := bson.D{{"email": user.Email}}
+	var findUser User
+	collection := db.Database(dbName).Collection("User")
+	err = collection.FindOne(context.Background(), bson.M{"email": user.Email}).Decode(&findUser)
+	if err != nil {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	passwordVerfication := utils.CheckPasswordHash(user.Password, findUser.Password)
+
+	if passwordVerfication == false {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := utils.GenerateToken(findUser.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	findUser.Token = token
+	var LoginData = findUser
 	fmt.Println("Endpoint hit: returnAllGroceries")
 
 	json.NewEncoder(w).Encode(LoginData)
@@ -83,5 +131,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 
 	fmt.Println("Endpoint hit: returnAllGroceries")
+
+}
+
+func UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(w)
 
 }
