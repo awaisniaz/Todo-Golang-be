@@ -135,6 +135,25 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w)
+	connection := dbconnection.Connection()
+	if connection == nil {
+		http.Error(w, "Some issue in Db Connection", http.StatusInternalServerError)
+		return
+	}
+
+	var user User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	fmt.Println(user.Profile)
+
+	w.Header().Set("Content-Type", "text/plain")
+
+	// Write the string response to the ResponseWriter
+	// Here, we're sending the string "Hello, world!"
+	w.Write([]byte("Hello, world!"))
 
 }
