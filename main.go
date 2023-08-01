@@ -7,6 +7,7 @@ import (
 
 	controller "github.com/awaisniaz/todo/Controller"
 	dbconnection "github.com/awaisniaz/todo/DbConnection"
+	middleware "github.com/awaisniaz/todo/Middleware"
 
 	"github.com/gorilla/mux"
 )
@@ -26,7 +27,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/login", controller.Login).Methods("POST")
 	r.HandleFunc("/signup", controller.Register).Methods("POST")
-	r.HandleFunc("/updateProfile", controller.UpdateProfile).Methods("PATCH")
+	r.Handle("/updateProfile", middleware.Authenticate(http.HandlerFunc(controller.UpdateProfile))).Methods("PATCH")
 	r.HandleFunc("/addTodo", controller.AddTodo)
 	r.HandleFunc("/getTodos", controller.GetTodo)
 	r.HandleFunc("/updateTodo", controller.UpdateTodo)
