@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -29,6 +30,23 @@ func GenerateToken(Id string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secretKey))
+}
+
+func VerifyToken(tokenString string) (bool, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("failed to parse token: %w", err)
+	}
+	fmt.Println(token)
+	if token.Valid == true {
+		return true, nil
+
+	}
+
+	return false, nil
 }
 func HashPassword(pass string) (string, error) {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
