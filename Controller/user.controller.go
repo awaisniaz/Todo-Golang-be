@@ -45,17 +45,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Unmarshal the JSON data into the User struct
-	// err = json.Unmarshal(body, &user)
-	// if err != nil {
-	// 	http.Error(w, "Failed to unmarshal JSON", http.StatusInternalServerError)
-	// 	return
-	// }
 	fmt.Println(user.Email)
 
 	dbName := os.Getenv("DB_NAME")
 	fmt.Println(dbName)
-	// filter := bson.D{{"email": user.Email}}
 	var findUser User
 	collection := db.Database(dbName).Collection("User")
 	err = collection.FindOne(context.Background(), bson.M{"email": user.Email}).Decode(&findUser)
@@ -154,6 +147,6 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Write the string response to the ResponseWriter
 	// Here, we're sending the string "Hello, world!"
-	w.Write([]byte("Hello, world!"))
+	w.Write([]byte("Hello, worl"))
 
 }
