@@ -32,21 +32,20 @@ func GenerateToken(Id string) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-func VerifyToken(tokenString string) (bool, error) {
-	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+func VerifyToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
 
 	if err != nil {
-		return false, fmt.Errorf("failed to parse token: %w", err)
-	}
-	fmt.Println(token)
-	if token.Valid == true {
-		return true, nil
-
+		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
 
-	return false, nil
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("You Token is expired")
 }
 func HashPassword(pass string) (string, error) {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)

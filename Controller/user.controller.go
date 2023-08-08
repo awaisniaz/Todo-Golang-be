@@ -128,25 +128,46 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value("userID").(string)
+	fmt.Println(userID)
+	if !ok {
+		http.Error(w, "Invalid token data", http.StatusInternalServerError)
+		return
+	}
+
+	db := dbconnection.Connection()
+	if db == nil {
+		log.Fatal("Some thing is going Wrong")
+		return
+	}
 	connection := dbconnection.Connection()
 	if connection == nil {
 		http.Error(w, "Some issue in Db Connection", http.StatusInternalServerError)
 		return
 	}
 
-	var user User
+	var user bson.M
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	fmt.Println(user.Profile)
 
-	w.Header().Set("Content-Type", "text/plain")
+	// var response interface{}
+	dbName := os.Getenv("DB_NAME")
+	collection := db.Database(dbName).Collection("User")
+	update := bson.M{"$set": user}
+	_, err = collection.UpdateOne(context.Background(), bson.M{
+		"email": userID,
+	}, update)
+	if err != nil {
+		http.Error(w, "Error updating data in database", http.StatusInternalServerError)
+		return
+	}
 
-	// Write the string response to the ResponseWriter
-	// Here, we're sending the string "Hello, world!"
-	w.Write([]byte("Hello, worl"))
+	// Return a success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Data updated successfully"))
 
 }

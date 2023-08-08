@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -9,12 +10,12 @@ import (
 
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userAgent := r.Header.Get("User-Agent")
-		fmt.Println("User-Agent:", userAgent)
 		token := r.Header.Get("Authorization")
-		fmt.Println("User-Agent:", token)
 		valid, err := utils.VerifyToken(token)
-		if valid == true {
+		fmt.Println(valid)
+		if err == nil {
+			ctx := context.WithValue(r.Context(), "userID", valid.UserID)
+			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 			return
 		}
