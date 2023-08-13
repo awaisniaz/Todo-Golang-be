@@ -13,7 +13,6 @@ import (
 	"github.com/awaisniaz/todo/utils"
 	"gopkg.in/mgo.v2/bson"
 )
-
 type User struct {
 	Name     string `json: "name"`
 	Email    string `json: "email"`
@@ -21,14 +20,12 @@ type User struct {
 	Profile  string `json:"profile"`
 	Token    string `json:"token"`
 }
-
 type Response1 struct {
 	Message string `json:message`
 }
 type Response struct {
 	Message error `json:message`
 }
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	db := dbconnection.Connection()
 	if db == nil {
