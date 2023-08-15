@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/awaisniaz/todo/utils"
 	"gopkg.in/mgo.v2/bson"
 )
+
 type User struct {
 	Name     string `json: "name"`
 	Email    string `json: "email"`
@@ -26,6 +28,7 @@ type Response1 struct {
 type Response struct {
 	Message error `json:message`
 }
+
 func Login(w http.ResponseWriter, r *http.Request) {
 	db := dbconnection.Connection()
 	if db == nil {
@@ -167,4 +170,33 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Data updated successfully"))
 
+}
+
+func UpdateProfilePicture(w http.ResponseWriter, r *http.Request) {
+	db := dbconnection.Connection()
+	if db == nil {
+		log.Fatal("Some thing is going Wrong")
+		return
+	}
+
+	r.ParseMultipartForm(32 << 20)
+	//ParseMultipartForm parses a request body as multipart/form-data
+	file, handler, err := r.FormFile("file") //retrieve the file from form data
+	//replace file with the key your sent your image with
+	if err != nil {
+		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close() //close the file when we finish
+	//this is path which  we want to store the file
+	f, err := os.OpenFile("/uploads"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+	io.Copy(f, file)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(handler.Filename))
 }
