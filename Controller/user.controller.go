@@ -187,8 +187,7 @@ func UpdateProfilePicture(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
 		return
 	}
-	defer file.Close() //close the file when we finish
-	//this is path which  we want to store the file
+	defer file.Close() 
 	f, err := os.OpenFile("/uploads"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
@@ -196,7 +195,6 @@ func UpdateProfilePicture(w http.ResponseWriter, r *http.Request) {
 	}
 	defer f.Close()
 	io.Copy(f, file)
-
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(handler.Filename))
 }
