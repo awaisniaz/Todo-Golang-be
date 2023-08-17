@@ -187,7 +187,7 @@ func UpdateProfilePicture(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
 		return
 	}
-	defer file.Close() 
+	defer file.Close()
 	f, err := os.OpenFile("/uploads"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		http.Error(w, "I am Unable to get a body ", http.StatusInternalServerError)
