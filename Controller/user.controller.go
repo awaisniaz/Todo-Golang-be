@@ -197,7 +197,4 @@ func UpdateProfilePicture(w http.ResponseWriter, r *http.Request) {
 	io.Copy(f, file)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(handler.Filename))
-
-	
-
 }
