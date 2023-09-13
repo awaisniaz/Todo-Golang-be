@@ -8,10 +8,7 @@ import (
 )
 
 func main() {
-    // Create a new router instance from Gorilla Mux.
     router := mux.NewRouter()
-
-    // Define route handlers
     router.HandleFunc("/login", controller.Login).Methods("POST")
     router.HandleFunc("/register", controller.Register).Methods("GET")
 
